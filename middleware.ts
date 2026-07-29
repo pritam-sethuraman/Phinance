@@ -1,16 +1,86 @@
+// import { withAuth } from "next-auth/middleware";
+
+// export default withAuth();
+
+// export const config = {
+//   matcher: [
+//     "/dashboard/:path*",
+//     "/transactions/:path*",
+//     "/budgets/:path*",
+//     "/settings/:path*",
+//     "/profile/:path*",
+//     "/admin/:path*",
+//   ],
+// };
+
+import { NextResponse } from "next/server";
 import { withAuth } from "next-auth/middleware";
 
-export default withAuth();
+export default withAuth(
+  function middleware(req) {
+    const { pathname } = req.nextUrl;
+    const token = req.nextauth.token;
+
+    // Admin authorization
+    if (pathname.startsWith("/admin")) {
+      if (token?.role !== "ADMIN") {
+        return new NextResponse("Forbidden", { status: 403 });
+      }
+    }
+
+    const response = NextResponse.next();
+
+    // Security Headers
+    response.headers.set(
+      "Content-Security-Policy",
+      [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: https:",
+        "font-src 'self' data:",
+        "connect-src 'self' https:",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "frame-ancestors 'none'",
+      ].join("; "),
+    );
+
+    response.headers.set(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains; preload",
+    );
+
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+    return response;
+  },
+  {
+    callbacks: {
+      // Redirect anonymous users to /login
+      authorized: ({ token }) => !!token,
+    },
+    pages: {
+      signIn: "/login",
+    },
+  },
+);
+
+// export const config = {
+//   matcher: [
+//     "/dashboard/:path*",
+//     "/transactions/:path*",
+//     "/budgets/:path*",
+//     "/settings/:path*",
+//     "/profile/:path*",
+//     "/admin/:path*",
+//   ],
+// };
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/transactions/:path*",
-    "/budgets/:path*",
-    "/settings/:path*",
-    "/profile/:path*",
-    "/admin/:path*",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login|register).*)"],
 };
 
 // import { NextResponse } from "next/server";

@@ -1,13 +1,9 @@
-// TODO(M2): export { GET, POST } from "@/lib/auth/auth" once Auth.js is configured.
-import { NextResponse } from "next/server";
+import NextAuth from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export async function GET() {
-  return NextResponse.json(
-    { data: null, error: { message: "Auth not configured yet" } },
-    { status: 501 },
-  );
-}
-export const POST = GET;
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST };
 
 // import NextAuth from "next-auth";
 // import GithubProvider from "next-auth/providers/github";

@@ -25,9 +25,7 @@ export default function LoginPage() {
           <Button variant="outline" disabled>
             Continue with Google
           </Button>
-          <Button variant="outline" disabled>
-            Continue with GitHub
-          </Button>
+          <Button variant="outline">Continue with GitHub</Button>
 
           <div className="my-fib8 flex items-center gap-fib13 text-xs text-muted-foreground">
             <span className="h-px flex-1 bg-border" /> or{" "}
@@ -36,23 +34,13 @@ export default function LoginPage() {
 
           <div className="flex flex-col gap-fib5">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              disabled
-            />
+            <Input id="email" type="email" placeholder="you@example.com" />
           </div>
           <div className="flex flex-col gap-fib5">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              disabled
-            />
+            <Input id="password" type="password" placeholder="••••••••" />
           </div>
-          <Button disabled>Sign in</Button>
+          <Button>Sign in</Button>
 
           <p className="text-center text-sm text-muted-foreground">
             No account?{" "}

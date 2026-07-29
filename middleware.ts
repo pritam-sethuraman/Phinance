@@ -68,19 +68,15 @@ export default withAuth(
   },
 );
 
-// export const config = {
-//   matcher: [
-//     "/dashboard/:path*",
-//     "/transactions/:path*",
-//     "/budgets/:path*",
-//     "/settings/:path*",
-//     "/profile/:path*",
-//     "/admin/:path*",
-//   ],
-// };
-
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login|register).*)"],
+  matcher: [
+    "/dashboard/:path*",
+    "/transactions/:path*",
+    "/budgets/:path*",
+    "/settings/:path*",
+    "/profile/:path*",
+    "/admin/:path*",
+  ],
 };
 
 // import { NextResponse } from "next/server";

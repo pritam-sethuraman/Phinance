@@ -1,9 +1,16 @@
 import { withAuth } from "next-auth/middleware";
 
-export default withAuth;
+export default withAuth();
 
 export const config = {
-  matcher: ["/admin/*", "/(app)/*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/transactions/:path*",
+    "/budgets/:path*",
+    "/settings/:path*",
+    "/profile/:path*",
+    "/admin/:path*",
+  ],
 };
 
 // import { NextResponse } from "next/server";

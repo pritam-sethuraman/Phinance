@@ -24,27 +24,17 @@ export default function RegisterPage() {
         <CardContent className="flex flex-col gap-fib13">
           <div className="flex flex-col gap-fib5">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" placeholder="Ada Lovelace" disabled />
+            <Input id="name" placeholder="Ada Lovelace" />
           </div>
           <div className="flex flex-col gap-fib5">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              disabled
-            />
+            <Input id="email" type="email" placeholder="you@example.com" />
           </div>
           <div className="flex flex-col gap-fib5">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              disabled
-            />
+            <Input id="password" type="password" placeholder="••••••••" />
           </div>
-          <Button disabled>Create account</Button>
+          <Button>Create account</Button>
 
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}

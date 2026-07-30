@@ -67,7 +67,10 @@
 // ============================================================================
 
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth/auth.config";
+
+const { auth } = NextAuth(authConfig);
 
 const PROTECTED_PREFIXES = [
   "/dashboard",
@@ -78,7 +81,7 @@ const PROTECTED_PREFIXES = [
   "/profile",
 ];
 
-export default auth((req) => {
+export default NextAuth(authConfig).auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth?.user;
   const role = req.auth?.user?.role;

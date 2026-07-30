@@ -66,11 +66,8 @@
 
 // ============================================================================
 
-import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
-import { authConfig } from "@/lib/auth/auth.config";
-
-const { auth } = NextAuth(authConfig);
+import { auth } from "@/lib/auth/auth";
 
 const PROTECTED_PREFIXES = [
   "/dashboard",

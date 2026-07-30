@@ -15,10 +15,10 @@ const optionalText = (max: number) =>
 export const createTransactionSchema = z.object({
   type: transactionTypeEnum.default("EXPENSE"),
   amount: z
-    .number({ invalid_type_error: "Amount must be a number." })
+    .number({ error: "Amount must be a number." })
     .int("Amount must be a whole number of cents.")
     .positive("Amount must be greater than 0."),
-  date: z.coerce.date({ invalid_type_error: "Enter a valid date." }),
+  date: z.coerce.date(),
   category: categoryEnum,
   merchant: optionalText(200),
   note: optionalText(1000),

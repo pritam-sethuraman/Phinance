@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { AuthSessionProvider } from "@/components/shared/session-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
+import { auth } from "@/lib/auth/auth";
 import "./globals.css";
-import ClientProvider from "@/components/shared/client-provider";
 
 const fontDisplay = Newsreader({
   subsets: ["latin"],
@@ -36,17 +37,19 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const session = await auth();
+
   return (
-    <ClientProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${fontDisplay.variable} ${fontSans.variable} ${fontMono.variable}`}
-        >
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${fontDisplay.variable} ${fontSans.variable} ${fontMono.variable}`}
+      >
+        <AuthSessionProvider session={session}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -56,8 +59,8 @@ export default function RootLayout({
             {children}
             <Toaster />
           </ThemeProvider>
-        </body>
-      </html>
-    </ClientProvider>
+        </AuthSessionProvider>
+      </body>
+    </html>
   );
 }

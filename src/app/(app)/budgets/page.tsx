@@ -9,7 +9,7 @@ export default function BudgetsPage() {
         icon={Wallet}
         title="No budgets set yet"
         description="Overall + per-category budgets with 80% warn / 100% over warnings ship in M6."
-        action={<Button disabled>+ New budget</Button>}
+        action={<Button>+ New budget</Button>}
       />
     </div>
   );

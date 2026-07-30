@@ -21,13 +21,21 @@ export function Sidebar() {
 
       <nav className="flex flex-1 flex-col gap-fib1 px-fib13 py-fib21">
         {appNavItems.map((item) => (
-          <SidebarLink key={item.href} item={item} active={pathname?.startsWith(item.href)} />
+          <SidebarLink
+            key={item.href}
+            item={item}
+            active={pathname?.startsWith(item.href)}
+          />
         ))}
 
         <div className="my-fib13 h-px bg-border" />
 
         {secondaryNavItems.map((item) => (
-          <SidebarLink key={item.href} item={item} active={pathname?.startsWith(item.href)} />
+          <SidebarLink
+            key={item.href}
+            item={item}
+            active={pathname?.startsWith(item.href)}
+          />
         ))}
       </nav>
 

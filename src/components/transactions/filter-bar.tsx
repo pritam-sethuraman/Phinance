@@ -31,6 +31,19 @@ const SORT_OPTIONS = [
   { value: "amount_asc", label: "Amount: low to high" },
 ];
 
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => {
+  const date = new Date();
+  date.setMonth(date.getMonth() - i);
+
+  return {
+    value: date.toISOString().slice(0, 7),
+    label: date.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    }),
+  };
+});
+
 export function TransactionFilterBar() {
   const { current, update } = useTransactionFilters();
   const [searchDraft, setSearchDraft] = useState(current.q);
@@ -52,35 +65,68 @@ export function TransactionFilterBar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchDraft]);
 
-  const activeCount = [current.month, current.category, current.q].filter(Boolean).length;
+  const activeCount = [current.month, current.category, current.q].filter(
+    Boolean,
+  ).length;
   const hasFilters = activeCount > 0;
 
   function clearAll() {
     setSearchDraft("");
-    update({ month: undefined, category: undefined, q: undefined, sort: undefined });
+    update({
+      month: undefined,
+      category: undefined,
+      q: undefined,
+      sort: undefined,
+    });
   }
 
   const controls = (
     <>
       <div className="flex flex-col gap-fib5">
-        <label htmlFor="txn-month" className="text-xs font-medium text-muted-foreground">
+        <label
+          htmlFor="txn-month"
+          className="text-xs font-medium text-muted-foreground"
+        >
           Month
         </label>
-        <Input
+        <Select
+          value={current.month || "ALL"}
+          onValueChange={(v) => update({ month: v === "ALL" ? undefined : v })}
+        >
+          <SelectTrigger id="txn-month">
+            <SelectValue placeholder="All months" />
+          </SelectTrigger>
+
+          <SelectContent>
+            <SelectItem value="ALL">All months</SelectItem>
+
+            {MONTH_OPTIONS.map((month) => (
+              <SelectItem key={month.value} value={month.value}>
+                {month.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {/* <Input
           id="txn-month"
           type="month"
           value={current.month}
           onChange={(e) => update({ month: e.target.value || undefined })}
-        />
+        /> */}
       </div>
 
       <div className="flex flex-col gap-fib5">
-        <label htmlFor="txn-category" className="text-xs font-medium text-muted-foreground">
+        <label
+          htmlFor="txn-category"
+          className="text-xs font-medium text-muted-foreground"
+        >
           Category
         </label>
         <Select
           value={current.category || "ALL"}
-          onValueChange={(v) => update({ category: v === "ALL" ? undefined : v })}
+          onValueChange={(v) =>
+            update({ category: v === "ALL" ? undefined : v })
+          }
         >
           <SelectTrigger id="txn-category">
             <SelectValue placeholder="All categories" />
@@ -97,7 +143,10 @@ export function TransactionFilterBar() {
       </div>
 
       <div className="flex flex-col gap-fib5">
-        <label htmlFor="txn-sort" className="text-xs font-medium text-muted-foreground">
+        <label
+          htmlFor="txn-sort"
+          className="text-xs font-medium text-muted-foreground"
+        >
           Sort
         </label>
         <Select value={current.sort} onValueChange={(v) => update({ sort: v })}>
@@ -142,7 +191,9 @@ export function TransactionFilterBar() {
             <Button variant="outline" className="md:hidden">
               <SlidersHorizontal className="h-4 w-4" />
               Filters
-              {activeCount > 0 && <Badge className="ml-fib3">{activeCount}</Badge>}
+              {activeCount > 0 && (
+                <Badge className="ml-fib3">{activeCount}</Badge>
+              )}
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="flex flex-col gap-fib21">

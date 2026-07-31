@@ -21,6 +21,12 @@ const STATUS_LABEL: Record<UtilizationEntry["status"], string> = {
   over: "Over budget",
 };
 
+const STATUS_BADGE_VARIANT = {
+  ok: "secondary",
+  warn: "outline",
+  over: "destructive",
+} as const;
+
 const STATUS_INDICATOR_CLASS: Record<UtilizationEntry["status"], string> = {
   ok: "bg-status-ok",
   warn: "bg-status-warn",
@@ -36,14 +42,24 @@ interface BudgetCardProps {
   size?: "default" | "lg";
 }
 
-export function BudgetCard({ entry, title, onEdit, onDelete, deleting, size = "default" }: BudgetCardProps) {
-  const label = title ?? (entry.category ? CATEGORY_META[entry.category].label : "Overall");
+export function BudgetCard({
+  entry,
+  title,
+  onEdit,
+  onDelete,
+  deleting,
+  size = "default",
+}: BudgetCardProps) {
+  const label =
+    title ?? (entry.category ? CATEGORY_META[entry.category].label : "Overall");
   const pctClamped = Math.min(entry.pct, 1) * 100;
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-fib8 space-y-0">
-        <CardTitle className={size === "lg" ? "text-xl" : undefined}>{label}</CardTitle>
+        <CardTitle className={size === "lg" ? "text-xl" : undefined}>
+          {label}
+        </CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -64,7 +80,10 @@ export function BudgetCard({ entry, title, onEdit, onDelete, deleting, size = "d
             <DropdownMenuItem onClick={onEdit}>
               <Pencil className="h-4 w-4" /> Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+            <DropdownMenuItem
+              onClick={onDelete}
+              className="text-destructive focus:text-destructive"
+            >
               <Trash2 className="h-4 w-4" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -74,16 +93,22 @@ export function BudgetCard({ entry, title, onEdit, onDelete, deleting, size = "d
         <div className="flex flex-wrap items-baseline justify-between gap-fib5">
           <span className="font-mono text-sm font-medium">
             {formatCents(entry.spent)}{" "}
-            <span className="text-muted-foreground">/ {formatCents(entry.limit)}</span>
+            <span className="text-muted-foreground">
+              / {formatCents(entry.limit)}
+            </span>
           </span>
-          <Badge variant={entry.status}>{STATUS_LABEL[entry.status]}</Badge>
+          <Badge variant={STATUS_BADGE_VARIANT[entry.status]}>
+            {STATUS_LABEL[entry.status]}
+          </Badge>
         </div>
         <Progress
           value={pctClamped}
           indicatorClassName={STATUS_INDICATOR_CLASS[entry.status]}
           aria-label={`${label} budget: ${formatPercent(entry.pct)} used`}
         />
-        <span className="text-xs text-muted-foreground">{formatPercent(entry.pct)} used</span>
+        <span className="text-xs text-muted-foreground">
+          {formatPercent(entry.pct)} used
+        </span>
       </CardContent>
     </Card>
   );

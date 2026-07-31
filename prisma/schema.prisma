@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -11,7 +7,6 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-
 
 // ---------- Enums ----------
 enum Role {
@@ -165,7 +160,7 @@ model Budget {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, category, month])
+  @@unique([userId, category, month]) // NULLS NOT DISTINCT enforced via migration — see prisma/migrations/20260728120200_budget_unique_nulls_not_distinct
   @@index([userId, month])
 }
 

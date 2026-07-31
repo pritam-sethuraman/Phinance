@@ -1,16 +1,28 @@
-import { Wallet } from "lucide-react";
-import { EmptyState } from "@/components/shared/empty-state";
-import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
+import { requireUser } from "@/lib/auth/session";
+import { computeUtilization } from "@/lib/services/budget";
+import { currentMonthKey } from "@/lib/date";
+import { BudgetsClient } from "@/components/budgets/budgets-client";
 
-export default function BudgetsPage() {
+interface BudgetsPageProps {
+  searchParams: Promise<{ month?: string }>;
+}
+
+export default async function BudgetsPage({ searchParams }: BudgetsPageProps) {
+  const user = await requireUser();
+  const params = await searchParams;
+  const month =
+    params.month && /^\d{4}-\d{2}$/.test(params.month)
+      ? params.month
+      : currentMonthKey();
+
+  const entries = await computeUtilization(user.id, month);
+
   return (
-    <div className="flex flex-col gap-fib21">
-      <EmptyState
-        icon={Wallet}
-        title="No budgets set yet"
-        description="Overall + per-category budgets with 80% warn / 100% over warnings ship in M6."
-        action={<Button>+ New budget</Button>}
-      />
-    </div>
+    // useSearchParams() (via useBudgetMonth) requires a Suspense boundary —
+    // same reasoning as the transactions page in M5.
+    <Suspense fallback={<div className="h-10" />}>
+      <BudgetsClient month={month} entries={entries} />
+    </Suspense>
   );
 }

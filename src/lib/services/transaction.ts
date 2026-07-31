@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import { NotFoundError, ForbiddenError } from "@/lib/errors";
+
+import { monthRange } from "@/lib/date";
 import type {
   CreateTransactionInput,
   UpdateTransactionInput,
@@ -17,12 +19,12 @@ import type {
  * `userId` from the session — never from client-supplied data.
  */
 
-function monthRange(month: string): { gte: Date; lt: Date } {
-  const [year, mon] = month.split("-").map(Number);
-  const gte = new Date(Date.UTC(year!, mon! - 1, 1));
-  const lt = new Date(Date.UTC(year!, mon!, 1));
-  return { gte, lt };
-}
+// function monthRange(month: string): { gte: Date; lt: Date } {
+//   const [year, mon] = month.split("-").map(Number);
+//   const gte = new Date(Date.UTC(year!, mon! - 1, 1));
+//   const lt = new Date(Date.UTC(year!, mon!, 1));
+//   return { gte, lt };
+// }
 
 function sortToOrderBy(
   sort: TransactionQueryInput["sort"],

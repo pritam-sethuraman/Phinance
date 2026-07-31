@@ -9,7 +9,13 @@ interface EmptyStateProps {
   className?: string;
 }
 
-export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className,
+}: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -22,7 +28,11 @@ export function EmptyState({ icon: Icon, title, description, action, className }
       </div>
       <div className="flex flex-col gap-fib3">
         <p className="font-display text-base font-medium">{title}</p>
-        {description ? <p className="max-w-sm text-sm text-muted-foreground">{description}</p> : null}
+        {description ? (
+          <p className="max-w-sm text-sm text-muted-foreground">
+            {description}
+          </p>
+        ) : null}
       </div>
       {action}
     </div>

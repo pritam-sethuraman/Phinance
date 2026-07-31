@@ -49,3 +49,39 @@ export const transactionQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
 });
 export type TransactionQueryInput = z.infer<typeof transactionQuerySchema>;
+
+/**
+ * Form-facing schema — deliberately distinct from createTransactionSchema.
+ * Native <input type="number"> / <input type="date"> work with plain
+ * strings, not integer cents / Date objects, so the form holds
+ * `amountDollars`/`date` as strings and this gets mapped to
+ * CreateTransactionInput right before hitting the server.
+ */
+export const transactionFormSchema = z.object({
+  type: transactionTypeEnum,
+  amountDollars: z
+    .string()
+    .min(1, "Amount is required.")
+    .refine(
+      (v) => Number.isFinite(Number(v)) && Number(v) > 0,
+      "Amount must be greater than 0.",
+    ),
+  date: z.string().min(1, "Date is required."),
+  category: categoryEnum,
+  merchant: z.string().max(200).optional(),
+  note: z.string().max(1000).optional(),
+});
+export type TransactionFormValues = z.infer<typeof transactionFormSchema>;
+
+export function transactionFormToInput(
+  values: TransactionFormValues,
+): CreateTransactionInput {
+  return {
+    type: values.type,
+    amount: Math.round(Number(values.amountDollars) * 100),
+    date: new Date(values.date),
+    category: values.category,
+    merchant: values.merchant?.trim() ? values.merchant.trim() : undefined,
+    note: values.note?.trim() ? values.note.trim() : undefined,
+  };
+}

@@ -1,16 +1,15 @@
-import { ArrowLeftRight } from "lucide-react";
-import { EmptyState } from "@/components/shared/empty-state";
-import { Button } from "@/components/ui/button";
+import { requireUser } from "@/lib/auth/session";
+import { listTransactions } from "@/lib/services/transaction";
+import { transactionQuerySchema } from "@/lib/validation/transaction";
+import { TransactionsClient } from "@/components/transactions/transactions-client";
 
-export default function TransactionsPage() {
-  return (
-    <div className="flex flex-col gap-fib21">
-      <EmptyState
-        icon={ArrowLeftRight}
-        title="No transactions yet"
-        description="Add/edit/delete, search, filter, sort, and pagination land in M3–M5. This is the shell only."
-        action={<Button disabled>+ Add expense</Button>}
-      />
-    </div>
-  );
+// Full querying (filter/search/sort/pagination controls) lands in M5 — for
+// now we fetch a generous single page so the CRUD UI has real data to work
+// with. pageSize here is just large enough to cover typical demo/seed data.
+export default async function TransactionsPage() {
+  const user = await requireUser();
+  const query = transactionQuerySchema.parse({ pageSize: "100" });
+  const { items } = await listTransactions(user.id, query);
+
+  return <TransactionsClient initialItems={items} />;
 }

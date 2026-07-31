@@ -13,11 +13,14 @@ import {
 } from "@/lib/services/transaction";
 import { NotFoundError, ForbiddenError } from "@/lib/errors";
 
-export interface ActionResult {
+export interface ActionResult<T = undefined> {
   success: boolean;
+  data?: T;
   fieldErrors?: Record<string, string[] | undefined>;
   formError?: string;
 }
+
+type TransactionData = Awaited<ReturnType<typeof createTransaction>>;
 
 function revalidateTransactionViews() {
   revalidatePath("/transactions");
@@ -28,7 +31,7 @@ function revalidateTransactionViews() {
 
 export async function createTransactionAction(
   input: unknown,
-): Promise<ActionResult> {
+): Promise<ActionResult<TransactionData>> {
   const user = await requireUser();
 
   const parsed = createTransactionSchema.safeParse(input);
@@ -36,15 +39,15 @@ export async function createTransactionAction(
     return { success: false, fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  await createTransaction(user.id, parsed.data);
+  const txn = await createTransaction(user.id, parsed.data);
   revalidateTransactionViews();
-  return { success: true };
+  return { success: true, data: txn };
 }
 
 export async function updateTransactionAction(
   id: string,
   input: unknown,
-): Promise<ActionResult> {
+): Promise<ActionResult<TransactionData>> {
   const user = await requireUser();
 
   const parsed = updateTransactionSchema.safeParse(input);
@@ -53,7 +56,9 @@ export async function updateTransactionAction(
   }
 
   try {
-    await updateTransaction(user.id, id, parsed.data);
+    const txn = await updateTransaction(user.id, id, parsed.data);
+    revalidateTransactionViews();
+    return { success: true, data: txn };
   } catch (error) {
     if (error instanceof NotFoundError)
       return { success: false, formError: "Transaction not found." };
@@ -61,9 +66,6 @@ export async function updateTransactionAction(
       return { success: false, formError: "Not authorized." };
     throw error;
   }
-
-  revalidateTransactionViews();
-  return { success: true };
 }
 
 export async function deleteTransactionAction(

@@ -31,22 +31,43 @@ const SORT_OPTIONS = [
   { value: "amount_asc", label: "Amount: low to high" },
 ];
 
-const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => {
-  const date = new Date();
-  date.setMonth(date.getMonth() - i);
+// const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => {
+//   const date = new Date();
+//   date.setMonth(date.getMonth() - i);
 
-  return {
-    value: date.toISOString().slice(0, 7),
-    label: date.toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    }),
-  };
+//   return {
+//     value: date.toISOString().slice(0, 7),
+//     label: date.toLocaleDateString("en-US", {
+//       month: "long",
+//       year: "numeric",
+//     }),
+//   };
+// });
+
+const MONTH_OPTIONS = [
+  { value: "01", label: "January" },
+  { value: "02", label: "February" },
+  { value: "03", label: "March" },
+  { value: "04", label: "April" },
+  { value: "05", label: "May" },
+  { value: "06", label: "June" },
+  { value: "07", label: "July" },
+  { value: "08", label: "August" },
+  { value: "09", label: "September" },
+  { value: "10", label: "October" },
+  { value: "11", label: "November" },
+  { value: "12", label: "December" },
+];
+
+const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
+  return String(new Date().getFullYear() - i);
 });
 
 export function TransactionFilterBar() {
   const { current, update } = useTransactionFilters();
   const [searchDraft, setSearchDraft] = useState(current.q);
+  const selectedYear = current.month ? current.month.split("-")[0] : "";
+  const selectedMonth = current.month ? current.month.split("-")[1] : "";
 
   // Keep the input in sync if the URL changes from elsewhere (e.g. "Clear filters").
   useEffect(() => {
@@ -89,24 +110,57 @@ export function TransactionFilterBar() {
         >
           Month
         </label>
-        <Select
-          value={current.month || "ALL"}
-          onValueChange={(v) => update({ month: v === "ALL" ? undefined : v })}
-        >
-          <SelectTrigger id="txn-month">
-            <SelectValue placeholder="All months" />
-          </SelectTrigger>
+        <div className="flex gap-fib5">
+          <Select
+            value={selectedMonth || "ALL"}
+            onValueChange={(month) => {
+              if (month === "ALL") {
+                update({ month: undefined });
+              } else {
+                update({
+                  month: `${selectedYear || new Date().getFullYear()}-${month}`,
+                });
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Month" />
+            </SelectTrigger>
 
-          <SelectContent>
-            <SelectItem value="ALL">All months</SelectItem>
+            <SelectContent>
+              <SelectItem value="ALL">All months</SelectItem>
 
-            {MONTH_OPTIONS.map((month) => (
-              <SelectItem key={month.value} value={month.value}>
-                {month.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              {MONTH_OPTIONS.map((month) => (
+                <SelectItem key={month.value} value={month.value}>
+                  {month.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={selectedYear || String(new Date().getFullYear())}
+            onValueChange={(year) => {
+              if (selectedMonth) {
+                update({
+                  month: `${year}-${selectedMonth}`,
+                });
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Year" />
+            </SelectTrigger>
+
+            <SelectContent>
+              {YEAR_OPTIONS.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         {/* <Input
           id="txn-month"
           type="month"

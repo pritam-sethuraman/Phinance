@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { Plus, Pencil, Trash2, ArrowLeftRight } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeftRight, SearchX } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,8 +42,10 @@ const cardDateFormatter = new Intl.DateTimeFormat("en-CA", {
 
 export function TransactionsClient({
   initialItems,
+  hasFilters = false,
 }: {
   initialItems: TransactionRow[];
+  hasFilters?: boolean;
 }) {
   const [items, setItems] = useState<TransactionRow[]>(initialItems);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -51,6 +53,14 @@ export function TransactionsClient({
   const [deleting, setDeleting] = useState<TransactionRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingBusy, setDeletingBusy] = useState(false);
+
+  // initialItems is a fresh array on every server render — which, for this
+  // page, only happens on mount and when filters/sort/page change (M5).
+  // Our own CRUD actions never navigate, so this doesn't fight with the
+  // optimistic updates below.
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
 
   function openCreate() {
     setEditing(null);
@@ -165,22 +175,27 @@ export function TransactionsClient({
 
   return (
     <div className="flex flex-col gap-fib21">
-      <div className="hidden items-center justify-between md:flex">
-        <p className="text-sm text-muted-foreground">
-          {items.length} transaction{items.length === 1 ? "" : "s"}
-        </p>
+      <div className="hidden justify-end md:flex">
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4" /> Add expense
         </Button>
       </div>
 
       {items.length === 0 ? (
-        <EmptyState
-          icon={ArrowLeftRight}
-          title="No transactions yet"
-          description="Add your first expense to start tracking where your money goes."
-          action={<Button onClick={openCreate}>+ Add expense</Button>}
-        />
+        hasFilters ? (
+          <EmptyState
+            icon={SearchX}
+            title="No transactions match your filters"
+            description="Try a different month, category, or search term — or clear filters above."
+          />
+        ) : (
+          <EmptyState
+            icon={ArrowLeftRight}
+            title="No transactions yet"
+            description="Add your first expense to start tracking where your money goes."
+            action={<Button onClick={openCreate}>+ Add expense</Button>}
+          />
+        )
       ) : (
         <>
           {/* Desktop table */}

@@ -10,7 +10,7 @@ export const upsertBudgetSchema = z.object({
   category: categoryEnum.nullable().default(null), // null = overall budget
   month: monthKeySchema,
   amount: z
-    .number({ invalid_type_error: "Amount must be a number." })
+    .number({ error: "Amount must be a number." })
     .int("Amount must be a whole number of cents.")
     .positive("Budget amount must be greater than 0."),
 });
@@ -18,7 +18,7 @@ export type UpsertBudgetInput = z.infer<typeof upsertBudgetSchema>;
 
 export const updateBudgetSchema = z.object({
   amount: z
-    .number({ invalid_type_error: "Amount must be a number." })
+    .number({ error: "Amount must be a number." })
     .int("Amount must be a whole number of cents.")
     .positive("Budget amount must be greater than 0."),
 });
@@ -40,7 +40,10 @@ export const budgetFormSchema = z.object({
   amountDollars: z
     .string()
     .min(1, "Amount is required.")
-    .refine((v) => Number.isFinite(Number(v)) && Number(v) > 0, "Amount must be greater than 0."),
+    .refine(
+      (v) => Number.isFinite(Number(v)) && Number(v) > 0,
+      "Amount must be greater than 0.",
+    ),
 });
 export type BudgetFormValues = z.infer<typeof budgetFormSchema>;
 

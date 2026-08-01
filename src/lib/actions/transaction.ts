@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { requireUser } from "@/lib/auth/session";
 import {
   createTransactionSchema,
@@ -22,11 +22,12 @@ export interface ActionResult<T = undefined> {
 
 type TransactionData = Awaited<ReturnType<typeof createTransaction>>;
 
-function revalidateTransactionViews() {
+function revalidateTransactionViews(userId: string) {
   revalidatePath("/transactions");
   revalidatePath("/dashboard");
   revalidatePath("/budgets");
   revalidatePath("/analytics");
+  revalidateTag(`dashboard-${userId}`, "max");
 }
 
 export async function createTransactionAction(
@@ -40,7 +41,7 @@ export async function createTransactionAction(
   }
 
   const txn = await createTransaction(user.id, parsed.data);
-  revalidateTransactionViews();
+  revalidateTransactionViews(user.id);
   return { success: true, data: txn };
 }
 
@@ -57,7 +58,7 @@ export async function updateTransactionAction(
 
   try {
     const txn = await updateTransaction(user.id, id, parsed.data);
-    revalidateTransactionViews();
+    revalidateTransactionViews(user.id);
     return { success: true, data: txn };
   } catch (error) {
     if (error instanceof NotFoundError)
@@ -83,6 +84,6 @@ export async function deleteTransactionAction(
     throw error;
   }
 
-  revalidateTransactionViews();
+  revalidateTransactionViews(user.id);
   return { success: true };
 }

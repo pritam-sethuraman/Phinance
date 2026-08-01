@@ -4,7 +4,8 @@ import { useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { currentMonthKey } from "@/lib/date";
 
-export function useBudgetMonth() {
+/** URL-synced ?month= state, shared by the Budgets and Dashboard pages. */
+export function useMonthParam() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -20,7 +21,9 @@ export function useBudgetMonth() {
         params.set("month", next);
       }
       const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
     },
     [pathname, router, searchParams],
   );

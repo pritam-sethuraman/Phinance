@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { BudgetCard } from "./budget-card";
 import { BudgetFormDialog } from "./budget-form-dialog";
-import { useBudgetMonth } from "./use-budget-month";
+import { useMonthParam } from "@/hooks/use-month-param";
 import { deleteBudgetAction } from "@/lib/actions/budget";
 import { CATEGORIES, type CategoryKey } from "@/config/categories";
 import type { UtilizationEntry } from "@/lib/services/budget";
@@ -22,7 +22,7 @@ export function BudgetsClient({
   entries: UtilizationEntry[];
 }) {
   const router = useRouter();
-  const { setMonth } = useBudgetMonth();
+  const { setMonth } = useMonthParam();
   const [, startTransition] = useTransition();
 
   const [dialogOpen, setDialogOpen] = useState(false);

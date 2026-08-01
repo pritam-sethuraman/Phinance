@@ -160,7 +160,7 @@ model Budget {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, category, month]) // NULLS NOT DISTINCT enforced via migration — see prisma/migrations/20260728120200_budget_unique_nulls_not_distinct
+  @@unique([userId, month]) // NULLS NOT DISTINCT enforced via migration — see prisma/migrations/20260728120200_budget_unique_nulls_not_distinct
   @@index([userId, month])
 }
 

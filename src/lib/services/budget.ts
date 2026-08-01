@@ -3,7 +3,10 @@ import { NotFoundError, ForbiddenError } from "@/lib/errors";
 import { monthRange } from "@/lib/date";
 import { budgetStatus, type BudgetStatus } from "@/config/thresholds";
 import type { CategoryKey } from "@/config/categories";
-import type { UpsertBudgetInput, UpdateBudgetInput } from "@/lib/validation/budget";
+import type {
+  UpsertBudgetInput,
+  UpdateBudgetInput,
+} from "@/lib/validation/budget";
 
 export interface UtilizationEntry {
   budgetId: string;
@@ -24,7 +27,10 @@ export async function listBudgets(userId: string, month: string) {
  * compute how much they've actually spent against it. Spend comes from
  * EXPENSE transactions only — INCOME never counts against a budget.
  */
-export async function computeUtilization(userId: string, month: string): Promise<UtilizationEntry[]> {
+export async function computeUtilization(
+  userId: string,
+  month: string,
+): Promise<UtilizationEntry[]> {
   const budgets = await prisma.budget.findMany({ where: { userId, month } });
   if (budgets.length === 0) return [];
 
@@ -44,7 +50,9 @@ export async function computeUtilization(userId: string, month: string): Promise
   }
 
   return budgets.map((budget) => {
-    const spent = budget.category ? (spentByCategory.get(budget.category) ?? 0) : totalSpent;
+    const spent = budget.category
+      ? (spentByCategory.get(budget.category) ?? 0)
+      : totalSpent;
     return {
       budgetId: budget.id,
       category: budget.category as CategoryKey | null,
@@ -62,27 +70,56 @@ export async function computeUtilization(userId: string, month: string): Promise
  * needs to know whether a budget already exists for that category+month.
  */
 export async function upsertBudget(userId: string, input: UpsertBudgetInput) {
-  return prisma.budget.upsert({
+  // return prisma.budget.upsert({
+  //   where: {
+  //     userId_category_month: {
+  //       userId,
+  //       category: input.category,
+  //       month: input.month,
+  //     },
+  //   },
+  //   create: { ...input, userId },
+  //   update: { amount: input.amount, period: input.period },
+  // });
+  const existing = await prisma.budget.findFirst({
     where: {
-      userId_category_month: {
-        userId,
-        category: input.category,
-        month: input.month,
-      },
+      userId,
+      month: input.month,
+      category: input.category,
     },
-    create: { ...input, userId },
-    update: { amount: input.amount, period: input.period },
+  });
+
+  if (existing) {
+    return prisma.budget.update({
+      where: { id: existing.id },
+      data: {
+        amount: input.amount,
+        period: input.period,
+      },
+    });
+  }
+
+  return prisma.budget.create({
+    data: {
+      ...input,
+      userId,
+    },
   });
 }
 
 export async function getBudget(userId: string, id: string) {
   const budget = await prisma.budget.findUnique({ where: { id } });
   if (!budget) throw new NotFoundError("Budget not found.");
-  if (budget.userId !== userId) throw new ForbiddenError("You don't have access to this budget.");
+  if (budget.userId !== userId)
+    throw new ForbiddenError("You don't have access to this budget.");
   return budget;
 }
 
-export async function updateBudget(userId: string, id: string, input: UpdateBudgetInput) {
+export async function updateBudget(
+  userId: string,
+  id: string,
+  input: UpdateBudgetInput,
+) {
   await getBudget(userId, id); // existence + ownership check
   return prisma.budget.update({ where: { id }, data: input });
 }

@@ -65,14 +65,24 @@ const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
 
 export function TransactionFilterBar() {
   const { current, update } = useTransactionFilters();
-  const [searchDraft, setSearchDraft] = useState(current.q);
+  const [searchDraft, setSearchDraft] = useState(current.q ?? "");
   const selectedYear = current.month ? current.month.split("-")[0] : "";
   const selectedMonth = current.month ? current.month.split("-")[1] : "";
 
   // Keep the input in sync if the URL changes from elsewhere (e.g. "Clear filters").
+  // useEffect(() => {
+  //   setSearchDraft(current.q);
+  // }, [current.q]);
+
   useEffect(() => {
-    setSearchDraft(current.q);
-  }, [current.q]);
+    const handle = setTimeout(() => {
+      if (searchDraft !== current.q) {
+        update({ q: searchDraft || undefined });
+      }
+    }, 300);
+
+    return () => clearTimeout(handle);
+  }, [searchDraft, current.q, update]);
 
   // Debounce: push the URL update 300ms after the user stops typing, rather
   // than on every keystroke.
@@ -141,11 +151,9 @@ export function TransactionFilterBar() {
           <Select
             value={selectedYear || String(new Date().getFullYear())}
             onValueChange={(year) => {
-              if (selectedMonth) {
-                update({
-                  month: `${year}-${selectedMonth}`,
-                });
-              }
+              update({
+                month: `${year}-${selectedMonth || "01"}`,
+              });
             }}
           >
             <SelectTrigger>

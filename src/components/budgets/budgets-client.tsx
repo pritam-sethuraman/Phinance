@@ -14,7 +14,13 @@ import { deleteBudgetAction } from "@/lib/actions/budget";
 import { CATEGORIES, type CategoryKey } from "@/config/categories";
 import type { UtilizationEntry } from "@/lib/services/budget";
 
-export function BudgetsClient({ month, entries }: { month: string; entries: UtilizationEntry[] }) {
+export function BudgetsClient({
+  month,
+  entries,
+}: {
+  month: string;
+  entries: UtilizationEntry[];
+}) {
   const router = useRouter();
   const { setMonth } = useBudgetMonth();
   const [, startTransition] = useTransition();
@@ -25,8 +31,13 @@ export function BudgetsClient({ month, entries }: { month: string; entries: Util
 
   const overall = entries.find((e) => e.category === null) ?? null;
   const categoryEntries = entries
-    .filter((e): e is UtilizationEntry & { category: CategoryKey } => e.category !== null)
-    .sort((a, b) => CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category));
+    .filter(
+      (e): e is UtilizationEntry & { category: CategoryKey } =>
+        e.category !== null,
+    )
+    .sort(
+      (a, b) => CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category),
+    );
 
   function openCreate() {
     setEditing(null);
@@ -45,7 +56,9 @@ export function BudgetsClient({ month, entries }: { month: string; entries: Util
       setDeletingId(null);
 
       if (!result.success) {
-        toast.error(result.formError ?? "Couldn't delete the budget. Please try again.");
+        toast.error(
+          result.formError ?? "Couldn't delete the budget. Please try again.",
+        );
         return;
       }
       toast.success("Budget deleted.");

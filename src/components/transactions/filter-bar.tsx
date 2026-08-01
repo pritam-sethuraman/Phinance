@@ -151,9 +151,11 @@ export function TransactionFilterBar() {
           <Select
             value={selectedYear || String(new Date().getFullYear())}
             onValueChange={(year) => {
-              update({
-                month: `${year}-${selectedMonth || "01"}`,
-              });
+              if (selectedMonth) {
+                update({
+                  month: `${year}-${selectedMonth}`,
+                });
+              }
             }}
           >
             <SelectTrigger>

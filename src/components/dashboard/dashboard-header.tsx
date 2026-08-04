@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useMonthParam } from "@/hooks/use-month-param";
 import { QuickAddButton } from "./quick-add-button";
@@ -16,14 +16,15 @@ export function DashboardHeader({
 }) {
   const { month, setMonth } = useMonthParam();
 
-  // Computed client-side only, after mount — the server (likely UTC) and
-  // the visitor's local time can disagree about which greeting bucket
-  // applies, which would otherwise cause a hydration mismatch warning.
-  const [greeting, setGreeting] = useState("Welcome back");
-  useEffect(() => {
+  const [greeting] = useState(() => {
     const hour = new Date().getHours();
-    setGreeting(hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening");
-  }, []);
+
+    return hour < 12
+      ? "Good morning"
+      : hour < 18
+        ? "Good afternoon"
+        : "Good evening";
+  });
 
   const firstName = userName?.trim().split(/\s+/)[0];
 

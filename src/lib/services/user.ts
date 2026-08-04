@@ -8,16 +8,10 @@ export async function getUser(userId: string) {
   return user;
 }
 
-export async function updateSettings(
-  userId: string,
-  input: UpdateSettingsInput,
-) {
+export async function updateSettings(userId: string, input: UpdateSettingsInput) {
   return prisma.user.update({ where: { id: userId }, data: input });
 }
 
-export async function updateProfile(
-  userId: string,
-  data: { name: string; image: string | null },
-) {
+export async function updateProfile(userId: string, data: { name: string; image: string | null }) {
   return prisma.user.update({ where: { id: userId }, data });
 }

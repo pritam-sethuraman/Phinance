@@ -11,8 +11,12 @@ const dateFormatter = new Intl.DateTimeFormat("en-CA", { month: "short", day: "n
 
 export function RecentTransactionsCard({
   transactions,
+  currency,
+  locale,
 }: {
   transactions: DashboardData["recentTransactions"];
+  currency?: string;
+  locale?: string;
 }) {
   return (
     <Card>
@@ -47,7 +51,7 @@ export function RecentTransactionsCard({
                     )}
                   >
                     {isIncome ? "+" : "-"}
-                    {formatCents(txn.amount)}
+                    {formatCents(txn.amount, { currency, locale })}
                   </span>
                 </li>
               );

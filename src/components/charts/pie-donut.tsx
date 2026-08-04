@@ -1,12 +1,21 @@
 "use client";
 
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { formatCents } from "@/lib/money";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface PieDonutProps {
   data: { label: string; value: number; color: string }[];
   height?: number;
+  currency?: string;
+  locale?: string;
 }
 
 const TOOLTIP_STYLE = {
@@ -17,7 +26,12 @@ const TOOLTIP_STYLE = {
   fontSize: 12,
 };
 
-export function PieDonut({ data, height = 280 }: PieDonutProps) {
+export function PieDonut({
+  data,
+  height = 280,
+  currency,
+  locale,
+}: PieDonutProps) {
   const reducedMotion = usePrefersReducedMotion();
 
   return (
@@ -36,8 +50,15 @@ export function PieDonut({ data, height = 280 }: PieDonutProps) {
             <Cell key={entry.label} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip formatter={(value) => formatCents(Number(value))} contentStyle={TOOLTIP_STYLE} />
-        <Legend wrapperStyle={{ fontSize: 12, color: "hsl(var(--muted-foreground))" }} />
+        <Tooltip
+          formatter={(value) =>
+            formatCents(Number(value), { currency, locale })
+          }
+          contentStyle={TOOLTIP_STYLE}
+        />
+        <Legend
+          wrapperStyle={{ fontSize: 12, color: "hsl(var(--muted-foreground))" }}
+        />
       </PieChart>
     </ResponsiveContainer>
   );

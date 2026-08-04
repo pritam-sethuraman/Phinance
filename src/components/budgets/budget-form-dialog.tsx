@@ -24,9 +24,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { budgetFormSchema, budgetFormToInput, type BudgetFormValues } from "@/lib/validation/budget";
+import {
+  budgetFormSchema,
+  budgetFormToInput,
+  type BudgetFormValues,
+} from "@/lib/validation/budget";
 import { upsertBudgetAction } from "@/lib/actions/budget";
-import { CATEGORIES, CATEGORY_META, type CategoryKey } from "@/config/categories";
+import {
+  CATEGORIES,
+  CATEGORY_META,
+  type CategoryKey,
+} from "@/config/categories";
 import { formatCentsPlain } from "@/lib/money";
 import type { UtilizationEntry } from "@/lib/services/budget";
 
@@ -37,6 +45,8 @@ interface BudgetFormDialogProps {
   existing?: UtilizationEntry | null;
   usedCategories: CategoryKey[];
   hasOverall: boolean;
+  currency?: string;
+  locale?: string;
 }
 
 export function BudgetFormDialog({
@@ -46,6 +56,8 @@ export function BudgetFormDialog({
   existing,
   usedCategories,
   hasOverall,
+  currency,
+  locale,
 }: BudgetFormDialogProps) {
   const router = useRouter();
   const isEdit = !!existing;
@@ -69,7 +81,7 @@ export function BudgetFormDialog({
         ? {
             category: existing.category ?? "OVERALL",
             month,
-            amountDollars: formatCentsPlain(existing.limit),
+            amountDollars: formatCentsPlain(existing.limit, locale),
           }
         : { category: "OVERALL", month, amountDollars: "" },
     );
@@ -85,13 +97,17 @@ export function BudgetFormDialog({
         {
           value: category,
           label:
-            category === "OVERALL" ? "Overall (all spending)" : CATEGORY_META[category as CategoryKey].label,
+            category === "OVERALL"
+              ? "Overall (all spending)"
+              : CATEGORY_META[category as CategoryKey].label,
         },
       ];
     }
     const available = CATEGORIES.filter((c) => !usedCategories.includes(c));
     return [
-      ...(hasOverall ? [] : [{ value: "OVERALL", label: "Overall (all spending)" }]),
+      ...(hasOverall
+        ? []
+        : [{ value: "OVERALL", label: "Overall (all spending)" }]),
       ...available.map((c) => ({ value: c, label: CATEGORY_META[c].label })),
     ];
   }, [isEdit, category, usedCategories, hasOverall]);
@@ -101,7 +117,9 @@ export function BudgetFormDialog({
     const result = await upsertBudgetAction(input);
 
     if (!result.success) {
-      toast.error(result.formError ?? "Couldn't save the budget. Please try again.");
+      toast.error(
+        result.formError ?? "Couldn't save the budget. Please try again.",
+      );
       return;
     }
 
@@ -116,16 +134,24 @@ export function BudgetFormDialog({
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit budget" : "New budget"}</DialogTitle>
           <DialogDescription>
-            {isEdit ? "Update the monthly limit." : "Set a spending limit for this month."}
+            {isEdit
+              ? "Update the monthly limit."
+              : "Set a spending limit for this month."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-fib13">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="flex flex-col gap-fib13"
+        >
           <div className="flex flex-col gap-fib5">
             <Label htmlFor="budget-category">Applies to</Label>
             <Select
               value={category}
-              onValueChange={(v) => setValue("category", v as BudgetFormValues["category"])}
+              onValueChange={(v) =>
+                setValue("category", v as BudgetFormValues["category"])
+              }
               disabled={isEdit || categoryOptions.length === 0}
             >
               <SelectTrigger id="budget-category">
@@ -147,7 +173,9 @@ export function BudgetFormDialog({
           </div>
 
           <div className="flex flex-col gap-fib5">
-            <Label htmlFor="budget-amount">Monthly limit ($)</Label>
+            <Label htmlFor="budget-amount">
+              Monthly limit ({currency ?? "CAD"})
+            </Label>
             <Input
               id="budget-amount"
               type="number"
@@ -159,15 +187,24 @@ export function BudgetFormDialog({
               {...register("amountDollars")}
             />
             {errors.amountDollars && (
-              <p className="text-xs text-destructive">{errors.amountDollars.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.amountDollars.message}
+              </p>
             )}
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || categoryOptions.length === 0}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || categoryOptions.length === 0}
+            >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {isEdit ? "Save changes" : "Create budget"}
             </Button>

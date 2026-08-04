@@ -1,20 +1,66 @@
-import { Sidebar } from "@/components/shared/sidebar";
-import { Topbar } from "@/components/shared/topbar";
-import { BottomTabBar } from "@/components/shared/bottom-tab-bar";
+import type { Metadata } from "next";
+import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { ThemeProvider } from "@/components/shared/theme-provider";
+import { AuthSessionProvider } from "@/components/shared/session-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { siteConfig } from "@/config/site";
+import { auth } from "@/lib/auth/auth";
+import "./globals.css";
 
-// TODO(M2): wrap with requireUser() session guard once Auth.js lands —
-// middleware.ts will also redirect anonymous users to /login.
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+const fontDisplay = Newsreader({
+  subsets: ["latin"],
+  variable: "--font-display",
+  style: ["normal", "italic"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const fontSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const fontMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: siteConfig.name,
+    template: `%s · ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+};
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth();
+
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar />
-        <main className="flex-1 overflow-y-auto p-fib21 pb-fib89 md:pb-fib21">
-          {children}
-        </main>
-      </div>
-      <BottomTabBar />
-    </div>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${fontDisplay.variable} ${fontSans.variable} ${fontMono.variable}`}
+      >
+        <AuthSessionProvider session={session}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </AuthSessionProvider>
+      </body>
+    </html>
   );
 }

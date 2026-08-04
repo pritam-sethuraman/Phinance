@@ -2,9 +2,11 @@ import { formatCents } from "@/lib/money";
 
 interface RankedBarListProps {
   data: { label: string; value: number; color?: string }[];
+  currency?: string;
+  locale?: string;
 }
 
-export function RankedBarList({ data }: RankedBarListProps) {
+export function RankedBarList({ data, currency, locale }: RankedBarListProps) {
   const max = Math.max(...data.map((d) => d.value), 1);
 
   return (
@@ -17,7 +19,9 @@ export function RankedBarList({ data }: RankedBarListProps) {
           <div className="flex min-w-0 flex-1 flex-col gap-fib3">
             <div className="flex items-center justify-between gap-fib8 text-sm">
               <span className="truncate font-medium">{entry.label}</span>
-              <span className="shrink-0 font-mono text-muted-foreground">{formatCents(entry.value)}</span>
+              <span className="shrink-0 font-mono text-muted-foreground">
+                {formatCents(entry.value, { currency, locale })}
+              </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">
               <div

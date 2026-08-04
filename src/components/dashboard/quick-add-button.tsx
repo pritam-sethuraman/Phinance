@@ -10,7 +10,7 @@ import { createTransactionAction } from "@/lib/actions/transaction";
 import { transactionFormToInput, type TransactionFormValues } from "@/lib/validation/transaction";
 
 /** Reuses the M4 transaction dialog directly rather than duplicating the form. */
-export function QuickAddButton() {
+export function QuickAddButton({ currency, locale }: { currency?: string; locale?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -35,7 +35,14 @@ export function QuickAddButton() {
       <Button onClick={() => setOpen(true)}>
         <Plus className="h-4 w-4" /> Add expense
       </Button>
-      <TransactionFormDialog open={open} onOpenChange={setOpen} onSubmit={handleSubmit} submitting={submitting} />
+      <TransactionFormDialog
+        open={open}
+        onOpenChange={setOpen}
+        onSubmit={handleSubmit}
+        submitting={submitting}
+        currency={currency}
+        locale={locale}
+      />
     </>
   );
 }

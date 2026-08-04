@@ -5,11 +5,21 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { CATEGORY_META } from "@/config/categories";
 import type { BudgetVsActualEntry } from "@/lib/services/analytics";
 
-export function BudgetVsActualSection({ entries }: { entries: BudgetVsActualEntry[] }) {
+export function BudgetVsActualSection({
+  entries,
+  currency,
+  locale,
+}: {
+  entries: BudgetVsActualEntry[];
+  currency?: string;
+  locale?: string;
+}) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Budget vs actual (this month)</CardTitle>
+        <CardTitle className="text-base">
+          Budget vs actual (this month)
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {entries.length === 0 ? (
@@ -27,6 +37,8 @@ export function BudgetVsActualSection({ entries }: { entries: BudgetVsActualEntr
                 budget: e.budget,
                 actual: e.actual,
               }))}
+              currency={currency}
+              locale={locale}
             />
           </>
         )}
@@ -35,7 +47,11 @@ export function BudgetVsActualSection({ entries }: { entries: BudgetVsActualEntr
   );
 }
 
-function BudgetVsActualSummary({ entries }: { entries: BudgetVsActualEntry[] }) {
+function BudgetVsActualSummary({
+  entries,
+}: {
+  entries: BudgetVsActualEntry[];
+}) {
   const overCount = entries.filter((e) => e.actual > e.budget).length;
   return (
     <p className="sr-only">

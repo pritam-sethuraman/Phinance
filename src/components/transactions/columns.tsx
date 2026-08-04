@@ -8,14 +8,21 @@ import { CATEGORY_META, type CategoryKey } from "@/config/categories";
 import { cn } from "@/lib/utils";
 import type { TransactionRow } from "./types";
 
-const dateFormatter = new Intl.DateTimeFormat("en-CA", { month: "short", day: "numeric" });
+const dateFormatter = new Intl.DateTimeFormat("en-CA", {
+  month: "short",
+  day: "numeric",
+});
 
 export function buildColumns({
   onEdit,
   onDelete,
+  currency,
+  locale,
 }: {
   onEdit: (txn: TransactionRow) => void;
   onDelete: (txn: TransactionRow) => void;
+  currency?: string;
+  locale?: string;
 }): ColumnDef<TransactionRow>[] {
   return [
     {
@@ -27,7 +34,9 @@ export function buildColumns({
       accessorKey: "merchant",
       header: "Merchant",
       cell: ({ row }) =>
-        row.original.merchant || <span className="text-muted-foreground">—</span>,
+        row.original.merchant || (
+          <span className="text-muted-foreground">—</span>
+        ),
     },
     {
       accessorKey: "category",
@@ -50,7 +59,9 @@ export function buildColumns({
       accessorKey: "note",
       header: "Note",
       cell: ({ row }) => (
-        <span className="text-muted-foreground">{row.original.note || "—"}</span>
+        <span className="text-muted-foreground">
+          {row.original.note || "—"}
+        </span>
       ),
     },
     {
@@ -66,7 +77,7 @@ export function buildColumns({
             )}
           >
             {isIncome ? "+" : "-"}
-            {formatCents(row.original.amount)}
+            {formatCents(row.original.amount, { currency, locale })}
           </div>
         );
       },

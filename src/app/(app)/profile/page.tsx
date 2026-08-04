@@ -1,18 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { getCurrentUserPrefs } from "@/lib/auth/current-user";
+import { ProfileForm } from "@/components/profile/profile-form";
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const user = await getCurrentUserPrefs();
+
   return (
     <div className="flex max-w-2xl flex-col gap-fib21">
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>
-            Name, avatar, verified email, member-since, and role — wired up in M9 alongside auth
-            (M2).
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">Coming in M9.</CardContent>
-      </Card>
+      <ProfileForm
+        name={user.name}
+        email={user.email}
+        image={user.image}
+        emailVerified={!!user.emailVerified}
+        role={user.role}
+        memberSince={user.createdAt}
+      />
     </div>
   );
 }

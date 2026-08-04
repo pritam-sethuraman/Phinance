@@ -1,18 +1,16 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { getCurrentUserPrefs } from "@/lib/auth/current-user";
+import { SettingsForm } from "@/components/settings/settings-form";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const user = await getCurrentUserPrefs();
+
   return (
     <div className="flex max-w-2xl flex-col gap-fib21">
-      <Card>
-        <CardHeader>
-          <CardTitle>Appearance, preferences & security</CardTitle>
-          <CardDescription>
-            Theme, currency, locale, and connected accounts land in M9. Use the theme toggle in
-            the topbar for now.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">Coming in M9.</CardContent>
-      </Card>
+      <SettingsForm
+        initialTheme={user.theme}
+        initialCurrency={user.currency}
+        initialLocale={user.locale}
+      />
     </div>
   );
 }

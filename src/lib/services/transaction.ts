@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import { NotFoundError, ForbiddenError } from "@/lib/errors";
-
 import { monthRange } from "@/lib/date";
 import type {
   CreateTransactionInput,
@@ -19,16 +18,7 @@ import type {
  * `userId` from the session — never from client-supplied data.
  */
 
-// function monthRange(month: string): { gte: Date; lt: Date } {
-//   const [year, mon] = month.split("-").map(Number);
-//   const gte = new Date(Date.UTC(year!, mon! - 1, 1));
-//   const lt = new Date(Date.UTC(year!, mon!, 1));
-//   return { gte, lt };
-// }
-
-function sortToOrderBy(
-  sort: TransactionQueryInput["sort"],
-): Prisma.TransactionOrderByWithRelationInput {
+function sortToOrderBy(sort: TransactionQueryInput["sort"]): Prisma.TransactionOrderByWithRelationInput {
   switch (sort) {
     case "date_asc":
       return { date: "asc" };
@@ -93,25 +83,17 @@ export async function listTransactions(
 export async function getTransaction(userId: string, id: string) {
   const txn = await prisma.transaction.findUnique({ where: { id } });
   if (!txn) throw new NotFoundError("Transaction not found.");
-  if (txn.userId !== userId)
-    throw new ForbiddenError("You don't have access to this transaction.");
+  if (txn.userId !== userId) throw new ForbiddenError("You don't have access to this transaction.");
   return txn;
 }
 
-export async function createTransaction(
-  userId: string,
-  input: CreateTransactionInput,
-) {
+export async function createTransaction(userId: string, input: CreateTransactionInput) {
   return prisma.transaction.create({
     data: { ...input, userId },
   });
 }
 
-export async function updateTransaction(
-  userId: string,
-  id: string,
-  input: UpdateTransactionInput,
-) {
+export async function updateTransaction(userId: string, id: string, input: UpdateTransactionInput) {
   await getTransaction(userId, id); // existence + ownership check
   return prisma.transaction.update({ where: { id }, data: input });
 }
@@ -119,4 +101,29 @@ export async function updateTransaction(
 export async function deleteTransaction(userId: string, id: string) {
   await getTransaction(userId, id); // existence + ownership check
   await prisma.transaction.delete({ where: { id } });
+}
+
+const EXPORT_BATCH_SIZE = 500;
+
+/**
+ * Yields all transactions matching the given filters, in batches — used by
+ * CSV export (streamed response) so a large export doesn't require loading
+ * every matching row into memory at once.
+ */
+export async function* iterateTransactions(
+  userId: string,
+  filters: Omit<TransactionQueryInput, "page" | "pageSize">,
+) {
+  let page = 1;
+  for (;;) {
+    const { items } = await listTransactions(userId, {
+      ...filters,
+      page,
+      pageSize: EXPORT_BATCH_SIZE,
+    });
+    if (items.length === 0) return;
+    yield items;
+    if (items.length < EXPORT_BATCH_SIZE) return;
+    page += 1;
+  }
 }

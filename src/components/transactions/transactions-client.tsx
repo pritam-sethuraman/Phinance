@@ -43,9 +43,13 @@ const cardDateFormatter = new Intl.DateTimeFormat("en-CA", {
 export function TransactionsClient({
   initialItems,
   hasFilters = false,
+  currency,
+  locale,
 }: {
   initialItems: TransactionRow[];
   hasFilters?: boolean;
+  currency?: string;
+  locale?: string;
 }) {
   const [items, setItems] = useState<TransactionRow[]>(initialItems);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -166,7 +170,12 @@ export function TransactionsClient({
     toast.success("Transaction deleted.");
   }
 
-  const columns = buildColumns({ onEdit: openEdit, onDelete: setDeleting });
+  const columns = buildColumns({
+    onEdit: openEdit,
+    onDelete: setDeleting,
+    currency,
+    locale,
+  });
   const table = useReactTable({
     data: items,
     columns,
@@ -240,6 +249,8 @@ export function TransactionsClient({
               <TransactionCard
                 key={txn.id}
                 txn={txn}
+                currency={currency}
+                locale={locale}
                 onEdit={() => openEdit(txn)}
                 onDelete={() => setDeleting(txn)}
               />
@@ -264,6 +275,8 @@ export function TransactionsClient({
         transaction={editing}
         onSubmit={handleSubmit}
         submitting={submitting}
+        currency={currency}
+        locale={locale}
       />
       <DeleteTransactionDialog
         transaction={deleting}
@@ -277,10 +290,14 @@ export function TransactionsClient({
 
 function TransactionCard({
   txn,
+  currency,
+  locale,
   onEdit,
   onDelete,
 }: {
   txn: TransactionRow;
+  currency?: string;
+  locale?: string;
   onEdit: () => void;
   onDelete: () => void;
 }) {
@@ -310,7 +327,7 @@ function TransactionCard({
           )}
         >
           {isIncome ? "+" : "-"}
-          {formatCents(txn.amount)}
+          {formatCents(txn.amount, { currency, locale })}
         </span>
         <Button
           variant="ghost"

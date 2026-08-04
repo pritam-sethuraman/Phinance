@@ -9,7 +9,13 @@ const STATUS_INDICATOR_CLASS = {
   over: "bg-status-over",
 } as const;
 
-export function UtilizationCard({ overallBudget }: { overallBudget: DashboardData["overallBudget"] }) {
+export function UtilizationCard({
+  overallBudget,
+  locale,
+}: {
+  overallBudget: DashboardData["overallBudget"];
+  locale?: string;
+}) {
   return (
     <Card>
       <CardHeader className="pb-fib5">
@@ -18,11 +24,11 @@ export function UtilizationCard({ overallBudget }: { overallBudget: DashboardDat
       <CardContent className="flex flex-col gap-fib8">
         {overallBudget ? (
           <>
-            <p className="font-mono text-2xl font-semibold">{formatPercent(overallBudget.pct)}</p>
+            <p className="font-mono text-2xl font-semibold">{formatPercent(overallBudget.pct, locale)}</p>
             <Progress
               value={Math.min(overallBudget.pct, 1) * 100}
               indicatorClassName={STATUS_INDICATOR_CLASS[overallBudget.status]}
-              aria-label={`${formatPercent(overallBudget.pct)} of overall budget used`}
+              aria-label={`${formatPercent(overallBudget.pct, locale)} of overall budget used`}
             />
           </>
         ) : (

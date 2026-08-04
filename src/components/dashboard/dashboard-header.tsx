@@ -1,25 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useMonthParam } from "@/hooks/use-month-param";
 import { QuickAddButton } from "./quick-add-button";
 
-export function DashboardHeader({ userName }: { userName?: string | null }) {
+export function DashboardHeader({
+  userName,
+  currency,
+  locale,
+}: {
+  userName?: string | null;
+  currency?: string;
+  locale?: string;
+}) {
   const { month, setMonth } = useMonthParam();
 
   // Computed client-side only, after mount — the server (likely UTC) and
   // the visitor's local time can disagree about which greeting bucket
   // applies, which would otherwise cause a hydration mismatch warning.
-  const [greeting] = useState(() => {
+  const [greeting, setGreeting] = useState("Welcome back");
+  useEffect(() => {
     const hour = new Date().getHours();
-
-    return hour < 12
-      ? "Good morning"
-      : hour < 18
-        ? "Good afternoon"
-        : "Good evening";
-  });
+    setGreeting(hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening");
+  }, []);
 
   const firstName = userName?.trim().split(/\s+/)[0];
 
@@ -37,7 +41,7 @@ export function DashboardHeader({ userName }: { userName?: string | null }) {
           className="w-fit"
           aria-label="Select month"
         />
-        <QuickAddButton />
+        <QuickAddButton currency={currency} locale={locale} />
       </div>
     </div>
   );

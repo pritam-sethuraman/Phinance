@@ -81,28 +81,21 @@ export async function upsertBudget(userId: string, input: UpsertBudgetInput) {
   //   create: { ...input, userId },
   //   update: { amount: input.amount, period: input.period },
   // });
-  const existing = await prisma.budget.findFirst({
+  return prisma.budget.upsert({
     where: {
-      userId,
-      month: input.month,
-      category: input.category,
-    },
-  });
-
-  if (existing) {
-    return prisma.budget.update({
-      where: { id: existing.id },
-      data: {
-        amount: input.amount,
-        period: input.period,
+      userId_month: {
+        userId,
+        month: input.month,
       },
-    });
-  }
-
-  return prisma.budget.create({
-    data: {
+    },
+    create: {
       ...input,
       userId,
+    },
+    update: {
+      amount: input.amount,
+      period: input.period,
+      category: input.category,
     },
   });
 }

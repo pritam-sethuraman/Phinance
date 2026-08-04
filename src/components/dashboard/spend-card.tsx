@@ -3,14 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCents, formatPercent } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
-export function SpendCard({ spend, momDeltaPct }: { spend: number; momDeltaPct: number | null }) {
+export function SpendCard({
+  spend,
+  momDeltaPct,
+  currency,
+  locale,
+}: {
+  spend: number;
+  momDeltaPct: number | null;
+  currency?: string;
+  locale?: string;
+}) {
   return (
     <Card>
       <CardHeader className="pb-fib5">
         <CardTitle className="text-sm font-medium text-muted-foreground">This month</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="font-mono text-2xl font-semibold">{formatCents(spend)}</p>
+        <p className="font-mono text-2xl font-semibold">{formatCents(spend, { currency, locale })}</p>
         {momDeltaPct !== null && (
           <p
             className={cn(
@@ -23,7 +33,7 @@ export function SpendCard({ spend, momDeltaPct }: { spend: number; momDeltaPct: 
             ) : (
               <TrendingDown className="h-3 w-3" aria-hidden="true" />
             )}
-            {formatPercent(Math.abs(momDeltaPct))} vs last month
+            {formatPercent(Math.abs(momDeltaPct), locale)} vs last month
           </p>
         )}
       </CardContent>

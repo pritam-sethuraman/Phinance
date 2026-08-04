@@ -21,12 +21,6 @@ const STATUS_LABEL: Record<UtilizationEntry["status"], string> = {
   over: "Over budget",
 };
 
-const STATUS_BADGE_VARIANT = {
-  ok: "secondary",
-  warn: "outline",
-  over: "destructive",
-} as const;
-
 const STATUS_INDICATOR_CLASS: Record<UtilizationEntry["status"], string> = {
   ok: "bg-status-ok",
   warn: "bg-status-warn",
@@ -36,6 +30,8 @@ const STATUS_INDICATOR_CLASS: Record<UtilizationEntry["status"], string> = {
 interface BudgetCardProps {
   entry: UtilizationEntry;
   title?: string;
+  currency?: string;
+  locale?: string;
   onEdit: () => void;
   onDelete: () => void;
   deleting?: boolean;
@@ -45,6 +41,8 @@ interface BudgetCardProps {
 export function BudgetCard({
   entry,
   title,
+  currency,
+  locale,
   onEdit,
   onDelete,
   deleting,
@@ -92,22 +90,20 @@ export function BudgetCard({
       <CardContent className="flex flex-col gap-fib8">
         <div className="flex flex-wrap items-baseline justify-between gap-fib5">
           <span className="font-mono text-sm font-medium">
-            {formatCents(entry.spent)}{" "}
+            {formatCents(entry.spent, { currency, locale })}{" "}
             <span className="text-muted-foreground">
-              / {formatCents(entry.limit)}
+              / {formatCents(entry.limit, { currency, locale })}
             </span>
           </span>
-          <Badge variant={STATUS_BADGE_VARIANT[entry.status]}>
-            {STATUS_LABEL[entry.status]}
-          </Badge>
+          <Badge variant={entry.status}>{STATUS_LABEL[entry.status]}</Badge>
         </div>
         <Progress
           value={pctClamped}
           indicatorClassName={STATUS_INDICATOR_CLASS[entry.status]}
-          aria-label={`${label} budget: ${formatPercent(entry.pct)} used`}
+          aria-label={`${label} budget: ${formatPercent(entry.pct, locale)} used`}
         />
         <span className="text-xs text-muted-foreground">
-          {formatPercent(entry.pct)} used
+          {formatPercent(entry.pct, locale)} used
         </span>
       </CardContent>
     </Card>

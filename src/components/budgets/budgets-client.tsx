@@ -17,9 +17,13 @@ import type { UtilizationEntry } from "@/lib/services/budget";
 export function BudgetsClient({
   month,
   entries,
+  currency,
+  locale,
 }: {
   month: string;
   entries: UtilizationEntry[];
+  currency?: string;
+  locale?: string;
 }) {
   const router = useRouter();
   const { setMonth } = useMonthParam();
@@ -94,6 +98,8 @@ export function BudgetsClient({
             <BudgetCard
               entry={overall}
               title="Overall monthly budget"
+              currency={currency}
+              locale={locale}
               onEdit={() => openEdit(overall)}
               onDelete={() => handleDelete(overall.budgetId)}
               deleting={deletingId === overall.budgetId}
@@ -107,6 +113,8 @@ export function BudgetsClient({
                 <BudgetCard
                   key={entry.budgetId}
                   entry={entry}
+                  currency={currency}
+                  locale={locale}
                   onEdit={() => openEdit(entry)}
                   onDelete={() => handleDelete(entry.budgetId)}
                   deleting={deletingId === entry.budgetId}
@@ -124,6 +132,8 @@ export function BudgetsClient({
         existing={editing}
         usedCategories={categoryEntries.map((e) => e.category)}
         hasOverall={!!overall}
+        currency={currency}
+        locale={locale}
       />
     </div>
   );

@@ -3,7 +3,15 @@ import { formatCents } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import type { DashboardData } from "@/lib/services/analytics";
 
-export function RemainingBudgetCard({ overallBudget }: { overallBudget: DashboardData["overallBudget"] }) {
+export function RemainingBudgetCard({
+  overallBudget,
+  currency,
+  locale,
+}: {
+  overallBudget: DashboardData["overallBudget"];
+  currency?: string;
+  locale?: string;
+}) {
   return (
     <Card>
       <CardHeader className="pb-fib5">
@@ -18,11 +26,11 @@ export function RemainingBudgetCard({ overallBudget }: { overallBudget: Dashboar
                 overallBudget.remaining < 0 && "text-status-over",
               )}
             >
-              {formatCents(overallBudget.remaining)}
+              {formatCents(overallBudget.remaining, { currency, locale })}
             </p>
             <p className="mt-fib3 text-xs text-muted-foreground">
               {overallBudget.remaining < 0 ? "over " : "of "}
-              {formatCents(overallBudget.limit)}
+              {formatCents(overallBudget.limit, { currency, locale })}
             </p>
           </>
         ) : (

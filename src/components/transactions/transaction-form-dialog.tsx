@@ -23,7 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { transactionFormSchema, type TransactionFormValues } from "@/lib/validation/transaction";
+import {
+  transactionFormSchema,
+  type TransactionFormValues,
+} from "@/lib/validation/transaction";
 import { CATEGORIES, CATEGORY_META } from "@/config/categories";
 import { formatCentsPlain } from "@/lib/money";
 import type { TransactionRow } from "./types";
@@ -34,6 +37,8 @@ interface TransactionFormDialogProps {
   transaction?: TransactionRow | null;
   onSubmit: (values: TransactionFormValues) => Promise<void> | void;
   submitting?: boolean;
+  currency?: string;
+  locale?: string;
 }
 
 function toDateInputValue(date: Date | string): string {
@@ -57,6 +62,8 @@ export function TransactionFormDialog({
   transaction,
   onSubmit,
   submitting,
+  currency,
+  locale,
 }: TransactionFormDialogProps) {
   const isEdit = !!transaction;
 
@@ -80,7 +87,7 @@ export function TransactionFormDialog({
       transaction
         ? {
             type: transaction.type,
-            amountDollars: formatCentsPlain(transaction.amount),
+            amountDollars: formatCentsPlain(transaction.amount, locale),
             date: toDateInputValue(transaction.date),
             category: transaction.category,
             merchant: transaction.merchant ?? "",
@@ -97,7 +104,9 @@ export function TransactionFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit transaction" : "Add expense"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Edit transaction" : "Add expense"}
+          </DialogTitle>
           <DialogDescription>
             {isEdit
               ? "Update the details below."
@@ -105,10 +114,16 @@ export function TransactionFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-fib13">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="flex flex-col gap-fib13"
+        >
           <Tabs
             value={type}
-            onValueChange={(v) => setValue("type", v as TransactionFormValues["type"])}
+            onValueChange={(v) =>
+              setValue("type", v as TransactionFormValues["type"])
+            }
           >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="EXPENSE">Expense</TabsTrigger>
@@ -118,7 +133,9 @@ export function TransactionFormDialog({
 
           <div className="grid grid-cols-2 gap-fib13">
             <div className="flex flex-col gap-fib5">
-              <Label htmlFor="amountDollars">Amount ($)</Label>
+              <Label htmlFor="amountDollars">
+                Amount ({currency ?? "CAD"})
+              </Label>
               <Input
                 id="amountDollars"
                 type="number"
@@ -130,13 +147,24 @@ export function TransactionFormDialog({
                 {...register("amountDollars")}
               />
               {errors.amountDollars && (
-                <p className="text-xs text-destructive">{errors.amountDollars.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.amountDollars.message}
+                </p>
               )}
             </div>
             <div className="flex flex-col gap-fib5">
               <Label htmlFor="date">Date</Label>
-              <Input id="date" type="date" aria-invalid={!!errors.date} {...register("date")} />
-              {errors.date && <p className="text-xs text-destructive">{errors.date.message}</p>}
+              <Input
+                id="date"
+                type="date"
+                aria-invalid={!!errors.date}
+                {...register("date")}
+              />
+              {errors.date && (
+                <p className="text-xs text-destructive">
+                  {errors.date.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -144,7 +172,9 @@ export function TransactionFormDialog({
             <Label htmlFor="category">Category</Label>
             <Select
               value={category}
-              onValueChange={(v) => setValue("category", v as TransactionFormValues["category"])}
+              onValueChange={(v) =>
+                setValue("category", v as TransactionFormValues["category"])
+              }
             >
               <SelectTrigger id="category">
                 <SelectValue placeholder="Select a category" />
@@ -161,12 +191,20 @@ export function TransactionFormDialog({
 
           <div className="flex flex-col gap-fib5">
             <Label htmlFor="merchant">Merchant</Label>
-            <Input id="merchant" placeholder="Loblaws" {...register("merchant")} />
+            <Input
+              id="merchant"
+              placeholder="Loblaws"
+              {...register("merchant")}
+            />
           </div>
 
           <div className="flex flex-col gap-fib5">
             <Label htmlFor="note">Note</Label>
-            <Input id="note" placeholder="Weekly groceries" {...register("note")} />
+            <Input
+              id="note"
+              placeholder="Weekly groceries"
+              {...register("note")}
+            />
           </div>
 
           <div className="flex flex-col gap-fib5">
@@ -177,7 +215,11 @@ export function TransactionFormDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={submitting}>

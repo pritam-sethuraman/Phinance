@@ -70,32 +70,28 @@ export async function computeUtilization(
  * needs to know whether a budget already exists for that category+month.
  */
 export async function upsertBudget(userId: string, input: UpsertBudgetInput) {
-  // return prisma.budget.upsert({
-  //   where: {
-  //     userId_category_month: {
-  //       userId,
-  //       category: input.category,
-  //       month: input.month,
-  //     },
-  //   },
-  //   create: { ...input, userId },
-  //   update: { amount: input.amount, period: input.period },
-  // });
-  return prisma.budget.upsert({
+  const existing = await prisma.budget.findFirst({
     where: {
-      userId_month: {
-        userId,
-        month: input.month,
-      },
+      userId,
+      month: input.month,
+      category: input.category,
     },
-    create: {
+  });
+
+  if (existing) {
+    return prisma.budget.update({
+      where: { id: existing.id },
+      data: {
+        amount: input.amount,
+        period: input.period,
+      },
+    });
+  }
+
+  return prisma.budget.create({
+    data: {
       ...input,
       userId,
-    },
-    update: {
-      amount: input.amount,
-      period: input.period,
-      category: input.category,
     },
   });
 }
